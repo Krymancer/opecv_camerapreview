@@ -1,12 +1,16 @@
 package com.example.opencvdemo
 
+import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame
@@ -14,6 +18,8 @@ import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.Mat
 
+
+const val PERMISSION_REQUEST_CAMERA = 0
 
 class MainActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2, View.OnTouchListener{
 
@@ -53,7 +59,13 @@ class MainActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2, Vie
         mOpenCvCameraView!!.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
         mOpenCvCameraView!!.visibility = CameraBridgeViewBase.VISIBLE;
         mOpenCvCameraView!!.setCvCameraViewListener(this);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,arrayOf(Manifest.permission.CAMERA), PERMISSION_REQUEST_CAMERA)
+        }
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -77,10 +89,10 @@ class MainActivity : Activity(), CameraBridgeViewBase.CvCameraViewListener2, Vie
     }
 
     override fun onCameraFrame(inputFrame: CvCameraViewFrame?): Mat {
+        Log.d(TAG, "onCameraFrame")
         if (inputFrame != null) {
             rgba = inputFrame.rgba()
         }
-        Log.d(TAG, "onCameraFrame")
         return (rgba as Mat?)!!
     }
 
